@@ -1,6 +1,6 @@
 if SERVER then
     AddCSLuaFile( )
-    resource.AddFile( "materials/vgui/ttt/weapon_snuggle_snuggle.vmt" )
+    resource.AddFile( "materials/vgui/ttt/weapon_snuggle_struggle.vmt" )
 end
 
 SWEP.DrawWeaponInfoBox = true
@@ -12,7 +12,7 @@ SWEP.InLoadoutFor = nil
 SWEP.CanBuy = { ROLE_TRAITOR }
 
 SWEP.LimitedStock = true
-SWEP.Icon = "vgui/ttt/weapon_snuggle_snuggle"
+SWEP.Icon = "vgui/ttt/weapon_snuggle_struggle"
 
 SWEP.EquipMenuData = {
     type = "item_weapon" ,
