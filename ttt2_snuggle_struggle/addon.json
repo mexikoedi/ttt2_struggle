@@ -1,0 +1,11 @@
+{
+    "title": "TTT2 Snuggle Struggle",
+    "type": "weapon",
+    "tags": "fun",
+    "description": "Rape Dem' Bitches... or guys. Have Fun!\nPrimaryfire to have fun and Secondaryfire to taunt.",
+    "ignore": [
+        "*.psd",
+        "*.vcproj",
+        "*.svn"
+    ]
+}
