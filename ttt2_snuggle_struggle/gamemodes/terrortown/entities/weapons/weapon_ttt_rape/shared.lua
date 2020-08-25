@@ -168,8 +168,8 @@ if SERVER then
         if victim:GetPos( ):Distance( owner:GetPos( ) ) > self.Primary.Distance then return end
         owner:EmitSound( self.Primary.Sound )
         // set both to spec camera
-        owner:Spectate( OBS_MODE_ROAMING )
-        victim:Spectate( OBS_MODE_ROAMING )
+        owner:Spectate( OBS_MODE_CHASE )
+        victim:Spectate( OBS_MODE_CHASE )
         // remove loadout from both players
         RemoveLoadout( owner )
         RemoveLoadout( victim )
@@ -182,10 +182,10 @@ if SERVER then
         for i = 1 , victimRagdoll:GetPhysicsObjectCount( ) - 1 do
             local phys = victimRagdoll:GetPhysicsObjectNum( i )
             if !IsValid( phys ) then continue end
-            phys:EnableCollisions( true )
-            phys:EnableMotion( false )
             phys:SetPos( positionBase + victimPos[ i ] )
             phys:SetAngles( victimAng[ i ] )
+            phys:EnableCollisions( true )
+            phys:EnableMotion( false )
         end
 
         local ownerRagdoll = ents.Create( "prop_ragdoll" )
@@ -208,8 +208,8 @@ if SERVER then
         end
 
         // spectate each other
-        owner:SpectateEntity( victimRagdoll )
-        victim:SpectateEntity( victimRagdoll )
+        owner:SpectateEntity( ownerRagdoll )
+        victim:SpectateEntity( ownerRagdoll )
         local thrustTimerString = "RapeThrust_" .. ( owner:SteamID64( ) || "SINGLEPLAYER" )
         local phys = victimRagdoll:GetPhysicsObjectNum( 11 )
 
