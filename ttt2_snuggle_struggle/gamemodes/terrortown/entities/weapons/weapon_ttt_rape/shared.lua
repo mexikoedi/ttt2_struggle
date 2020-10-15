@@ -234,7 +234,7 @@ if SERVER then
                 victim:SetPos( positionVictim )
                 GiveLoadout( victim )
                 // create damage
-                InstantDamage( victim , 100 , owner , ents.Create( "weapon_ttt_rape" ) )
+                InstantDamage( victim , 150 , owner , ents.Create( "weapon_ttt_rape" ) )
             end
 
             SafeRemoveEntity( victimRagdoll )
