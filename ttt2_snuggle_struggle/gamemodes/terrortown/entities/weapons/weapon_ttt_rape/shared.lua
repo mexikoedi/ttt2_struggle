@@ -1,6 +1,7 @@
 if SERVER then
     AddCSLuaFile()
     resource.AddFile("materials/vgui/ttt/weapon_snuggle_struggle.vmt")
+    resource.AddFile("noice.wav")
 end
 
 SWEP.Author = "mexikoedi"
@@ -59,7 +60,7 @@ local attackerAng = {Angle(-23.909204483032, 21.916522979736, 247.47807312012), 
 
 local sounds = {"player/crit_death1.wav", "player/crit_death2.wav", "player/crit_death3.wav", "player/crit_death4.wav", "player/crit_death5.wav", "bot/come_to_papa.wav", "bot/im_pinned_down.wav", "bot/oh_man.wav", "bot/yesss.wav", "bot/pain4", "bot/pain5", "bot/pain8", "bot/pain9", "bot/pain10", "bot/stop_it.wav", "bot/help.wav", "bot/i_could_use_some_help.wav", "bot/i_could_use_some_help_over_here.wav", "bot/they_got_me_pinned_down_here.wav", "bot/this_is_my_house.wav", "bot/need_help.wav", "bot/i_am_dangerous.wav", "bot/yikes.wav", "noo.wav", "bot/whos_the_man.wav", "bot/hang_on_im_coming.wav", "hostage/hpain/hpain1.wav", "hostage/hpain/hpain2.wav", "hostage/hpain/hpain3.wav", "hostage/hpain/hpain4.wav", "hostage/hpain/hpain5.wav", "hostage/hpain/hpain6.wav", "vo/k_lab/al_youcoming.wav", "vo/k_lab/kl_ahhhh.wav", "noice.wav",}
 
-local sounds2 = {"bot/where_are_you_hiding.wav",}
+local sounds2 = {"bot/where_are_you_hiding.wav", "vo/NovaProspekt/al_whereareyou03.wav", "vo/Citadel/al_wonderwhere.wav",}
 
 local sounds3 = {"physics/body/body_medium_break2.wav", "physics/body/body_medium_break3.wav", "physics/body/body_medium_break4.wav", "physics/body/body_medium_impact_hard1.wav", "physics/body/body_medium_impact_hard2.wav", "physics/body/body_medium_impact_hard3.wav", "physics/body/body_medium_impact_hard4.wav", "physics/body/body_medium_impact_hard5.wav", "physics/body/body_medium_impact_hard6.wav",}
 
@@ -67,15 +68,6 @@ function SWEP:Initialize()
     if CLIENT then
         self:AddHUDHelp("ttt2_sungglestruggle_help1", "ttt2_sungglestruggle_help2", true)
     end
-end
-
-function SWEP:DrawWorldModel()
-end
-
-function SWEP:Reload()
-end
-
-function SWEP:Think()
 end
 
 if SERVER then
@@ -129,7 +121,7 @@ if SERVER then
 
     local function InstantDamage(ply, damage, attacker, inflictor)
         local dmg = DamageInfo()
-        dmg:SetDamage(damage or 100)
+        dmg:SetDamage(damage or 150)
         dmg:SetAttacker(attacker or ply)
         dmg:SetDamageForce(ply:GetAimVector())
         dmg:SetDamagePosition(ply:GetPos())
@@ -143,20 +135,37 @@ if SERVER then
     end
 
     function SWEP:PrimaryAttack()
+        -- set up postioning stuff and owner/victim checks
         local owner = self:GetOwner()
         local victim = owner:GetEyeTrace().Entity
         if not IsValid(victim) or victim:IsNPC() or not victim:IsPlayer() or not victim:IsTerror() or not victim:IsActive() then return end
+
+        if owner:HasEquipmentItem("item_ttt_disguiser") then
+            owner:ChatPrint("You can't use this weapon with a disguiser!")
+
+            return
+        end
+
         local positionOwner = owner:GetPos()
         local positionVictim = victim:GetPos()
         local positionBase = positionOwner + Vector(0, 0, 5)
         if victim:GetPos():Distance(owner:GetPos()) > self.Primary.Distance then return end
         owner:EmitSound(self.Primary.Sound)
-        -- set both to spec camera
-        owner:Spectate(OBS_MODE_CHASE)
+        -- set owner to god mode with no movement + hide his name/give item + position him and set victim to spectator camera 
+        owner:GodEnable()
+        owner:SetJumpPower(1)
+        owner:SetCrouchedWalkSpeed(0.1)
+        owner:SetRunSpeed(1)
+        owner:SetWalkSpeed(1)
+        owner:SetMaxSpeed(1)
+        owner:GiveEquipmentItem("item_ttt_disguiser")
+        owner:ConCommand("ttt_toggle_disguise")
+        owner:SetPos(positionOwner + Vector(0, 50, 0))
         victim:Spectate(OBS_MODE_CHASE)
         -- remove loadout from both players
         RemoveLoadout(owner)
         RemoveLoadout(victim)
+        -- ragdoll creation and set up for victim and owner
         local victimRagdoll = ents.Create("prop_ragdoll")
         victimRagdoll:SetModel(victim:GetModel())
         victimRagdoll:SetPos(positionVictim)
@@ -191,11 +200,11 @@ if SERVER then
             end
         end
 
-        -- spectate each other
+        -- spectate each other and play random sounds + make name appear again
         owner:SpectateEntity(ownerRagdoll)
         victim:SpectateEntity(ownerRagdoll)
         local thrustTimerString = "RapeThrust_" .. (owner:SteamID64() or "SINGLEPLAYER")
-        local phys = victimRagdoll:GetPhysicsObjectNum(11)
+        local phys = ownerRagdoll:GetPhysicsObjectNum(11)
 
         if IsValid(phys) then
             phys:SetVelocity(Vector(0, 0, 100000))
@@ -217,11 +226,22 @@ if SERVER then
             victimRagdoll:EmitSound(sounds[math.random(#sounds)])
         end)
 
+        timer.Create("itemremoval", 4.5, 0, function()
+            owner:ConCommand("ttt_toggle_disguise")
+        end)
+
+        -- positioning of owner/victim and letting the owner move again with no godmode + remove item
         timer.Simple(self.RapeLength, function()
             if IsValid(owner) then
-                owner:UnSpectate()
-                owner:Spawn()
                 owner:SetPos(positionOwner)
+                owner:RemoveItem("item_ttt_disguiser")
+                owner:SetJumpPower(160)
+                owner:SetCrouchedWalkSpeed(0.3)
+                owner:SetRunSpeed(220)
+                owner:SetWalkSpeed(220)
+                owner:SetMaxSpeed(220)
+                owner:GodDisable()
+                -- give loadout of owner
                 GiveLoadout(owner)
                 -- remove weapon and select last weapon
                 owner:StripWeapon("weapon_ttt_rape")
@@ -232,26 +252,28 @@ if SERVER then
                 victim:UnSpectate()
                 victim:Spawn()
                 victim:SetPos(positionVictim)
+                -- give loadout of victim
                 GiveLoadout(victim)
                 -- create damage
                 InstantDamage(victim, 150, owner, ents.Create("weapon_ttt_rape"))
             end
 
+            -- removing ragdolls and timers
             SafeRemoveEntity(victimRagdoll)
             SafeRemoveEntity(ownerRagdoll)
             timer.Remove(soundTimerString)
             timer.Remove(thrustTimerString)
+            timer.Remove("itemremoval")
         end)
     end
-end
 
-SWEP.NextSecondaryAttack = 0
+    SWEP.NextSecondaryAttack = 0
 
-function SWEP:SecondaryAttack()
-    if self.NextSecondaryAttack > CurTime() then return end
-    self.NextSecondaryAttack = CurTime() + self.Secondary.Delay
-
-    if SERVER then
-        self:GetOwner():EmitSound(sounds2[math.random(#sounds2)])
+    function SWEP:SecondaryAttack()
+        -- set up random sounds
+        local owner = self:GetOwner()
+        if self.NextSecondaryAttack > CurTime() then return end
+        self.NextSecondaryAttack = CurTime() + self.Secondary.Delay
+        owner:EmitSound(sounds2[math.random(#sounds2)])
     end
 end
