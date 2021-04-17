@@ -121,7 +121,7 @@ if SERVER then
 
     local function InstantDamage(ply, damage, attacker, inflictor)
         local dmg = DamageInfo()
-        dmg:SetDamage(damage or 150)
+        dmg:SetDamage(damage or 500)
         dmg:SetAttacker(attacker or ply)
         dmg:SetDamageForce(ply:GetAimVector())
         dmg:SetDamagePosition(ply:GetPos())
@@ -255,7 +255,7 @@ if SERVER then
                 -- give loadout of victim
                 GiveLoadout(victim)
                 -- create damage
-                InstantDamage(victim, 150, owner, ents.Create("weapon_ttt_rape"))
+                InstantDamage(victim, 500, owner, ents.Create("weapon_ttt_rape"))
             end
 
             -- removing ragdolls and timers
