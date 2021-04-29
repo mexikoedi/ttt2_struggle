@@ -233,6 +233,10 @@ if SERVER then
         -- positioning of owner/victim and letting the owner move again with no godmode + remove item
         timer.Simple(self.RapeLength, function()
             if IsValid(owner) then
+                if owner:Health() < 100 then
+                    owner:SetHealth(100)
+                end
+
                 owner:SetPos(positionOwner)
                 owner:RemoveItem("item_ttt_disguiser")
                 owner:SetJumpPower(160)
