@@ -248,7 +248,7 @@ if SERVER then
                 -- give loadout of owner
                 GiveLoadout(owner)
                 -- remove weapon and select last weapon
-                owner:StripWeapon("weapon_ttt_rape")
+                owner:StripWeapon("weapon_ttt2_snuggle_struggle")
                 RunConsoleCommand("lastinv")
             end
 
@@ -259,7 +259,7 @@ if SERVER then
                 -- give loadout of victim
                 GiveLoadout(victim)
                 -- create damage
-                InstantDamage(victim, 500, owner, ents.Create("weapon_ttt_rape"))
+                InstantDamage(victim, 500, owner, ents.Create("weapon_ttt2_snuggle_struggle"))
             end
 
             -- removing ragdolls and timers
