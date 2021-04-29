@@ -230,7 +230,7 @@ if SERVER then
             owner:ConCommand("ttt_toggle_disguise")
         end)
 
-        -- positioning of owner/victim and letting the owner move again with no godmode + remove item
+        -- check health/give health + positioning of owner/victim and letting the owner move again with no godmode + remove item
         timer.Simple(self.RapeLength, function()
             if IsValid(owner) then
                 if owner:Health() < 100 then
