@@ -1,7 +1,7 @@
 if SERVER then
     AddCSLuaFile()
     resource.AddFile("materials/vgui/ttt/weapon_snuggle_struggle.vmt")
-    resource.AddFile("noice.wav")
+    resource.AddFile("sound/noice.wav")
 end
 
 SWEP.Author = "mexikoedi"
