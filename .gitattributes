@@ -1,2 +1,13 @@
+# -----------------------------------------------------------------
+# .gitattributes
+#
+# This file is a simple text file that gives attributes to pathnames.
+# https://git-scm.com/docs/gitattributes
+#
+# NOTES:
+# The purpose of gitattributes files is to specify the files and paths attributes that should be used by git when performing git actions, such as git commit, etc.
+#
+# -----------------------------------------------------------------
+
 # Auto detect text files and perform LF normalization
 * text=auto
