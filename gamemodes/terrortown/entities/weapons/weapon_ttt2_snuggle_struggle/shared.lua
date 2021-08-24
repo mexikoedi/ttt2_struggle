@@ -211,6 +211,7 @@ if SERVER then
 
             timer.Create(thrustTimerString, 0.3, 0, function()
                 if not IsValid(phys) or not IsValid(victimRagdoll) then return end
+                owner:DropWeapon()
                 phys:SetVelocity(Vector(0, 0, self.ThrustVelolicty))
 
                 if math.random(5) == 3 then
