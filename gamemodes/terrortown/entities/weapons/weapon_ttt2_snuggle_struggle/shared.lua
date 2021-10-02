@@ -33,7 +33,7 @@ SWEP.Primary.Recoil = 0
 SWEP.Primary.Damage = 0
 SWEP.Primary.NumShots = -1
 SWEP.Primary.Delay = 3
-SWEP.Primary.Distance = 75
+SWEP.Primary.Distance = 100
 SWEP.Primary.ClipSize = -1
 SWEP.Primary.DefaultClip = -1
 SWEP.Primary.Automatic = false
@@ -149,7 +149,7 @@ if SERVER then
         local positionOwner = owner:GetPos()
         local positionVictim = victim:GetPos()
         local positionBase = positionOwner + Vector(0, 0, 5)
-        if victim:GetPos():Distance(owner:GetPos()) > self.Primary.Distance then return end
+        if positionVictim:Distance(positionOwner) > self.Primary.Distance then return end
         owner:EmitSound(self.Primary.Sound)
         -- set owner to god mode with no movement + hide his name/give item + position him and set victim to spectator camera 
         owner:GodEnable()
