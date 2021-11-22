@@ -71,54 +71,6 @@ function SWEP:Initialize()
 end
 
 if SERVER then
-    -- this function removes the loadout of a player
-    -- while also storing all information for a later use
-    -- credit: Alf21
-    local function RemoveLoadout(ply)
-        ply.savedSnuggleInventoryItems = table.Copy(ply:GetEquipmentItems())
-        -- reset inventory
-        ply.savedSnuggleInventory = {}
-
-        -- save inventory
-        for _, v in pairs(ply:GetWeapons()) do
-            ply.savedSnuggleInventory[#ply.savedSnuggleInventory + 1] = {
-                cls = WEPS.GetClass(v),
-                clip1 = v:Clip1(),
-                clip2 = v:Clip2()
-            }
-        end
-
-        ply.savedSnuggleInventoryWeapon = WEPS.GetClass(ply:GetActiveWeapon())
-        -- clear inventory
-        ply:StripWeapons()
-    end
-
-    -- this function returns the loadout of a player
-    -- which was previously stored
-    -- credit: Alf21
-    local function GiveLoadout(ply)
-        if ply.savedSnuggleInventory then
-            for _, tbl in ipairs(ply.savedSnuggleInventory) do
-                if tbl.cls then
-                    local wep = ply:Give(tbl.cls)
-
-                    if IsValid(wep) then
-                        wep:SetClip1(tbl.clip1 or 0)
-                        wep:SetClip2(tbl.clip2 or 0)
-                    end
-                end
-            end
-        end
-
-        if ply.savedSnuggleInventoryWeapon then
-            ply:SelectWeapon(ply.savedSnuggleInventoryWeapon)
-        end
-
-        -- reset inventory
-        ply.savedSnuggleInventory = nil
-        ply.savedSnuggleInventoryItems = nil
-    end
-
     local function InstantDamage(ply, damage, attacker, inflictor)
         local dmg = DamageInfo()
         dmg:SetDamage(damage or 500)
@@ -163,8 +115,8 @@ if SERVER then
         owner:SetPos(positionOwner + Vector(0, 50, 0))
         victim:Spectate(OBS_MODE_CHASE)
         -- remove loadout from both players
-        RemoveLoadout(owner)
-        RemoveLoadout(victim)
+        owner:CacheAndStripWeapons()
+        victim:CacheAndStripWeapons()
         -- ragdoll creation and set up for victim and owner
         local victimRagdoll = ents.Create("prop_ragdoll")
         victimRagdoll:SetModel(victim:GetModel())
@@ -211,7 +163,6 @@ if SERVER then
 
             timer.Create(thrustTimerString, 0.3, 0, function()
                 if not IsValid(phys) or not IsValid(victimRagdoll) then return end
-                owner:DropWeapon()
                 phys:SetVelocity(Vector(0, 0, self.ThrustVelolicty))
 
                 if math.random(5) == 3 then
@@ -247,7 +198,7 @@ if SERVER then
                 owner:SetMaxSpeed(220)
                 owner:GodDisable()
                 -- give loadout of owner
-                GiveLoadout(owner)
+                owner:RestoreCachedWeapons()
                 -- remove weapon and select last weapon
                 owner:StripWeapon("weapon_ttt2_snuggle_struggle")
                 RunConsoleCommand("lastinv")
@@ -258,7 +209,7 @@ if SERVER then
                 victim:Spawn()
                 victim:SetPos(positionVictim)
                 -- give loadout of victim
-                GiveLoadout(victim)
+                victim:RestoreCachedWeapons()
                 -- create damage
                 InstantDamage(victim, 500, owner, ents.Create("weapon_ttt2_snuggle_struggle"))
             end
