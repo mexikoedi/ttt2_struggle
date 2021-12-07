@@ -1,5 +1,11 @@
 L = LANG.GetLanguageTableReference("es")
 L["ttt2_snugglestruggle_name"] = "Ñiqui ñiqui"
-L["ttt2_snugglestruggle_desc"] = "¡Fóllate a las perras de los innocentes! ¡No se puede utilizar si se ha comprado el disfrazador!"
+L["ttt2_snugglestruggle_desc"] = "¡Diviértete con tus enemigos! ¡No se puede utilizar si se ha comprado el disfrazador!"
 L["ttt2_sungglestruggle_help1"] = "{primaryfire} para pasar un buen rato"
 L["ttt2_sungglestruggle_help2"] = "{secondaryfire} para hacer una burla"
+L["submenu_addons_snuggle_struggle_title"] = "Ñiqui ñiqui"
+L["header_addons_snuggle_struggle"] = "Configuración General"
+L["label_snuggle_struggle_primary_sound"] = "Habilitar sonido de ataque primario"
+L["label_snuggle_struggle_secondary_sound"] = "Habilitar sonido de ataque secundario"
+L["label_snuggle_struggle_animation_sound"] = "Habilitar sonido de animación"
+L["label_snuggle_struggle_length"] = "Duración del ataque"

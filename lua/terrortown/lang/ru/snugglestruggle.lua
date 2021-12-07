@@ -1,5 +1,11 @@
 L = LANG.GetLanguageTableReference("ru")
 L["ttt2_snugglestruggle_name"] = "Обнимашки"
-L["ttt2_snugglestruggle_desc"] = "Насилуйте сучек... или парней. Веселитесь! Невозможно использовать, если Маскировка куплен!"
+L["ttt2_snugglestruggle_desc"] = "Веселитесь со своими врагами! Невозможно использовать, если Маскировка куплен!"
 L["ttt2_sungglestruggle_help1"] = "{primaryfire}, чтобы веселиться"
 L["ttt2_sungglestruggle_help2"] = "{secondaryfire} для насмешки"
+L["submenu_addons_snuggle_struggle_title"] = "Обнимашки"
+L["header_addons_snuggle_struggle"] = "Общие Настройки"
+L["label_snuggle_struggle_primary_sound"] = "Включить звук основной атаки"
+L["label_snuggle_struggle_secondary_sound"] = "Включить вторичный звук атаки"
+L["label_snuggle_struggle_animation_sound"] = "Включить звук анимации"
+L["label_snuggle_struggle_length"] = "Продолжительность атаки"

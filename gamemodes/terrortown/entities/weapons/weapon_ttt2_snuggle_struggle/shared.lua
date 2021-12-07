@@ -4,7 +4,6 @@ if SERVER then
     resource.AddFile("sound/noice.wav")
 end
 
-SWEP.Author = "mexikoedi"
 SWEP.Base = "weapon_tttbase"
 SWEP.Kind = WEAPON_EQUIP1
 SWEP.InLoadoutFor = nil
@@ -20,13 +19,18 @@ SWEP.EquipMenuData = {
     desc = "ttt2_snugglestruggle_desc"
 }
 
+SWEP.Author = "mexikoedi"
 SWEP.PrintName = "Snuggle Struggle"
+SWEP.Contact = "Steam"
+SWEP.Instructions = "Left click to have fun with the enemy and secondary attack to play random sounds."
+SWEP.Purpose = "Taunt and have fun with the enemies."
 SWEP.ViewModelFOV = 82
 SWEP.ViewModelFlip = true
 SWEP.NoSights = false
 SWEP.AllowDrop = false
-SWEP.Spawnable = true
-SWEP.AdminSpawnable = true
+SWEP.Spawnable = false
+SWEP.AdminOnly = false
+SWEP.AdminSpawnable = false
 SWEP.AutoSpawnable = false
 SWEP.Primary.Sound = Sound("vo/novaprospekt/al_holdon.wav")
 SWEP.Primary.Recoil = 0
@@ -46,7 +50,7 @@ SWEP.Secondary.Delay = 3
 attackerweapons = {}
 victimweapons = {}
 SWEP.ViewModel = Model("models/weapons/v_hands.mdl")
-SWEP.RapeLength = 5
+SWEP.RapeLength = GetConVar("ttt2_snuggle_struggle_length"):GetInt()
 SWEP.ThrustVelolicty = 750
 SWEP.SoundDelay = 1.5
 
@@ -89,6 +93,13 @@ if SERVER then
     function SWEP:PrimaryAttack()
         -- set up postioning stuff and owner/victim checks
         local owner = self:GetOwner()
+
+        if GetRoundState() ~= ROUND_ACTIVE or GetRoundState() == ROUND_PREP or GetRoundState() == ROUND_WAIT or GetRoundState() == ROUND_POST then
+            owner:ChatPrint("Round is not active, you can't use this weapon!")
+
+            return
+        end
+
         local victim = owner:GetEyeTrace().Entity
         if not IsValid(victim) or victim:IsNPC() or not victim:IsPlayer() or not victim:IsTerror() or not victim:IsActive() then return end
 
@@ -102,7 +113,11 @@ if SERVER then
         local positionVictim = victim:GetPos()
         local positionBase = positionOwner + Vector(0, 0, 5)
         if positionVictim:Distance(positionOwner) > self.Primary.Distance then return end
-        owner:EmitSound(self.Primary.Sound)
+
+        if GetConVar("ttt2_snuggle_struggle_primary_sound"):GetBool() then
+            owner:EmitSound(self.Primary.Sound)
+        end
+
         -- set owner to god mode with no movement + hide his name/give item + position him and set victim to spectator camera 
         owner:GodEnable()
         owner:SetJumpPower(1)
@@ -165,7 +180,7 @@ if SERVER then
                 if not IsValid(phys) or not IsValid(victimRagdoll) then return end
                 phys:SetVelocity(Vector(0, 0, self.ThrustVelolicty))
 
-                if math.random(5) == 3 then
+                if GetConVar("ttt2_snuggle_struggle_animation_sound"):GetBool() and math.random(5) == 3 then
                     victimRagdoll:EmitSound(sounds3[math.random(#sounds3)])
                 end
             end)
@@ -173,12 +188,14 @@ if SERVER then
 
         local soundTimerString = "EmitRapeSounds_" .. (owner:SteamID64() or "SINGLEPLAYER")
 
-        timer.Create(soundTimerString, self.SoundDelay, 0, function()
-            if not victimRagdoll:IsValid() then return end
-            victimRagdoll:EmitSound(sounds[math.random(#sounds)])
-        end)
+        if GetConVar("ttt2_snuggle_struggle_animation_sound"):GetBool() then
+            timer.Create(soundTimerString, self.SoundDelay, 0, function()
+                if not victimRagdoll:IsValid() then return end
+                victimRagdoll:EmitSound(sounds[math.random(#sounds)])
+            end)
+        end
 
-        timer.Create("itemremoval", 4.5, 0, function()
+        timer.Create("itemremoval", self.RapeLength - 0.5, 0, function()
             owner:ConCommand("ttt_toggle_disguise")
         end)
 
@@ -226,10 +243,13 @@ if SERVER then
     SWEP.NextSecondaryAttack = 0
 
     function SWEP:SecondaryAttack()
-        -- set up random sounds
-        local owner = self:GetOwner()
         if self.NextSecondaryAttack > CurTime() then return end
         self.NextSecondaryAttack = CurTime() + self.Secondary.Delay
-        owner:EmitSound(sounds2[math.random(#sounds2)])
+        local owner = self:GetOwner()
+
+        -- set up random sounds
+        if GetConVar("ttt2_snuggle_struggle_secondary_sound"):GetBool() then
+            owner:EmitSound(sounds2[math.random(#sounds2)])
+        end
     end
 end
