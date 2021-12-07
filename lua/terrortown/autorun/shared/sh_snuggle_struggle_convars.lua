@@ -5,7 +5,7 @@ CreateConVar("ttt2_snuggle_struggle_secondary_sound", "1", {FCVAR_ARCHIVE, FCVAR
 
 CreateConVar("ttt2_snuggle_struggle_animation_sound", "1", {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Sound of the animation")
 
-CreateConVar("ttt2_snuggle_struggle_length", "5", {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Length of the anuggle atruggle")
+CreateConVar("ttt2_snuggle_struggle_length", "5", {FCVAR_ARCHIVE, FCVAR_NOTIFY}, "Length of the snuggle struggle")
 
 if CLIENT then
     -- Use string or string.format("%.f",<steamid64>) 
