@@ -1,8 +1,11 @@
 {
-    "title": "TTT2 Snuggle Struggle",
+    "title": "[TTT2] Snuggle Struggle [WEAPON]",
     "type": "weapon",
-    "tags": "fun",
-    "description": "Rape Dem' Bitches... or guys. Have Fun!\nPrimaryfire to have fun and Secondaryfire to taunt.",
+    "tags": [
+        "realism",
+        "fun"
+    ],
+    "description": "Have fun with your enemies! Cannot be used if the disguiser has been bought!",
     "ignore": [
         "*.psd",
         "*.vcproj",
