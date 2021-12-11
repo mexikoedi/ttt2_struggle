@@ -51,8 +51,8 @@ attackerweapons = {}
 victimweapons = {}
 SWEP.ViewModel = Model("models/weapons/v_hands.mdl")
 SWEP.RapeLength = GetConVar("ttt2_snuggle_struggle_length"):GetInt()
-SWEP.ThrustVelolicty = 750
 SWEP.SoundDelay = 1.5
+local ThrustVelocity = 750
 
 local victimPos = {Vector(4.1165161132813, 0.33807373046875, 24.5458984375), Vector(10.886047363281, -6.7128601074219, 17.712890625), Vector(14.32470703125, 6.6110534667969, 24.662109375), Vector(10.561950683594, 11.863800048828, 14.9169921875), Vector(14.15673828125, 11.935821533203, 4.0126953125), Vector(8.0779418945313, -10.698425292969, 7.0859375), Vector(17.083557128906, -6.5664367675781, 1.28515625), Vector(-6.3666381835938, -3.5222778320313, 22.1142578125), Vector(-5.1080932617188, -3.3052978515625, 4.3046875), Vector(18.328247070313, -0.20745849609375, 18.6533203125), Vector(-7.3578491210938, 4.1403503417969, 22.0517578125), Vector(-6.7325439453125, 3.0444641113281, 4.2421875), Vector(-23.113708496094, 2.7197570800781, 6.40234375), Vector(-21.197875976563, -3.1515197753906, 6.390625),}
 
@@ -112,6 +112,14 @@ if SERVER then
         local positionOwner = owner:GetPos()
         local positionVictim = victim:GetPos()
         local positionBase = positionOwner + Vector(0, 0, 5)
+        local traceda = {}
+        traceda.start = positionBase
+        traceda.endpos = positionBase - Vector(0, 0, 1000)
+
+        traceda.filter = {victim, owner}
+
+        local trace = util.TraceLine(traceda)
+        positionBase = trace.HitPos or positionBase
         if positionVictim:Distance(positionOwner) > self.Primary.Distance then return end
 
         if GetConVar("ttt2_snuggle_struggle_primary_sound"):GetBool() then
@@ -177,10 +185,9 @@ if SERVER then
             phys:SetVelocity(Vector(0, 0, 100000))
 
             timer.Create(thrustTimerString, 0.3, 0, function()
-                if not IsValid(phys) or not IsValid(victimRagdoll) then return end
-                phys:SetVelocity(Vector(0, 0, self.ThrustVelolicty))
+                phys:SetVelocity(Vector(0, 0, ThrustVelocity))
 
-                if GetConVar("ttt2_snuggle_struggle_animation_sound"):GetBool() and math.random(5) == 3 then
+                if GetConVar("ttt2_snuggle_struggle_animation_sound"):GetBool() and IsValid(victimRagdoll) and math.random(5) == 3 then
                     victimRagdoll:EmitSound(sounds3[math.random(#sounds3)])
                 end
             end)
