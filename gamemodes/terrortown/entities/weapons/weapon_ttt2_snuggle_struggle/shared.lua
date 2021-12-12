@@ -54,6 +54,8 @@ SWEP.RapeLength = GetConVar("ttt2_snuggle_struggle_length"):GetInt()
 SWEP.SoundDelay = 1.5
 local ThrustVelocity = 750
 
+local boneNames = {"ValveBiped.Bip01_Spine2", "ValveBiped.Bip01_R_UpperArm", "ValveBiped.Bip01_L_UpperArm", "ValveBiped.Bip01_L_Forearm", "ValveBiped.Bip01_L_Hand", "ValveBiped.Bip01_R_Forearm", "ValveBiped.Bip01_R_Hand", "ValveBiped.Bip01_R_Thigh", "ValveBiped.Bip01_R_Calf", "ValveBiped.Bip01_Head1", "ValveBiped.Bip01_L_Thigh", "ValveBiped.Bip01_L_Calf", "ValveBiped.Bip01_L_Foot", "ValveBiped.Bip01_R_Foot",}
+
 local victimPos = {Vector(4.1165161132813, 0.33807373046875, 24.5458984375), Vector(10.886047363281, -6.7128601074219, 17.712890625), Vector(14.32470703125, 6.6110534667969, 24.662109375), Vector(10.561950683594, 11.863800048828, 14.9169921875), Vector(14.15673828125, 11.935821533203, 4.0126953125), Vector(8.0779418945313, -10.698425292969, 7.0859375), Vector(17.083557128906, -6.5664367675781, 1.28515625), Vector(-6.3666381835938, -3.5222778320313, 22.1142578125), Vector(-5.1080932617188, -3.3052978515625, 4.3046875), Vector(18.328247070313, -0.20745849609375, 18.6533203125), Vector(-7.3578491210938, 4.1403503417969, 22.0517578125), Vector(-6.7325439453125, 3.0444641113281, 4.2421875), Vector(-23.113708496094, 2.7197570800781, 6.40234375), Vector(-21.197875976563, -3.1515197753906, 6.390625),}
 
 local victimAng = {Angle(13.763027191162, -7.126654624939, 297.44543457031), Angle(65.35457611084, -125.17009735107, 116.02203369141), Angle(56.451721191406, 125.61678314209, 68.999862670898), Angle(71.750823974609, 1.1475394964218, 309.23059082031), Angle(10.08162021637, 20.952842712402, 89.150527954102), Angle(30.348388671875, 24.646505355835, 257.76071166992), Angle(-31.068134307861, 5.5770988464355, 100.95864105225), Angle(85.568023681641, -10.062316894531, 259.72805786133), Angle(-11.049569129944, 179.28791809082, 92.02823638916), Angle(36.883769989014, -10.713672637939, 95.383735656738), Angle(87.360504150391, -50.038749694824, 219.5774230957), Angle(-7.4636454582214, -178.8634185791, 90.854110717773), Angle(20.328042984009, 175.31163024902, 84.239585876465), Angle(20.698318481445, -177.09216308594, 94.63240814209),}
@@ -148,12 +150,18 @@ if SERVER then
         victimRagdoll:Activate()
 
         for i = 1, victimRagdoll:GetPhysicsObjectCount() - 1 do
-            local phys = victimRagdoll:GetPhysicsObjectNum(i)
-            if not IsValid(phys) then continue end
-            phys:SetPos(positionBase + victimPos[i])
-            phys:SetAngles(victimAng[i])
-            phys:EnableCollisions(true)
-            phys:EnableMotion(false)
+            local boneName = boneNames[i]
+            local boneId = victimRagdoll:LookupBone(boneName)
+
+            if boneId ~= nil then
+                local physId = victimRagdoll:TranslateBoneToPhysBone(boneId)
+                local phys = victimRagdoll:GetPhysicsObjectNum(physId)
+                if not IsValid(phys) then continue end
+                phys:SetPos(positionBase + victimPos[i])
+                phys:SetAngles(victimAng[i])
+                phys:EnableCollisions(true)
+                phys:EnableMotion(false)
+            end
         end
 
         local ownerRagdoll = ents.Create("prop_ragdoll")
@@ -163,15 +171,21 @@ if SERVER then
         ownerRagdoll:Activate()
 
         for i = 1, ownerRagdoll:GetPhysicsObjectCount() - 1 do
-            local phys = ownerRagdoll:GetPhysicsObjectNum(i)
-            if not IsValid(phys) then continue end
-            phys:SetPos(positionBase + attackerPos[i])
-            phys:SetAngles(attackerAng[i])
-            phys:EnableCollisions(false)
-            phys:EnableMotion(true)
+            local boneName = boneNames[i]
+            local boneId = ownerRagdoll:LookupBone(boneName)
 
-            if i == 2 or i == 5 or i == 7 or i == 10 or i == 13 or i == 14 then
-                phys:EnableMotion(false)
+            if boneId ~= nil then
+                local physId = ownerRagdoll:TranslateBoneToPhysBone(boneId)
+                local phys = ownerRagdoll:GetPhysicsObjectNum(physId)
+                if not IsValid(phys) then continue end
+                phys:SetPos(positionBase + attackerPos[i])
+                phys:SetAngles(attackerAng[i])
+                phys:EnableCollisions(false)
+                phys:EnableMotion(true)
+
+                if i == 2 or i == 5 or i == 7 or i == 10 or i == 13 or i == 14 then
+                    phys:EnableMotion(false)
+                end
             end
         end
 
@@ -179,18 +193,24 @@ if SERVER then
         owner:SpectateEntity(ownerRagdoll)
         victim:SpectateEntity(ownerRagdoll)
         local thrustTimerString = "RapeThrust_" .. (owner:SteamID64() or "SINGLEPLAYER")
-        local phys = ownerRagdoll:GetPhysicsObjectNum(11)
+        local boneName = boneNames[11]
+        local boneId = ownerRagdoll:LookupBone(boneName)
 
-        if IsValid(phys) then
-            phys:SetVelocity(Vector(0, 0, 100000))
+        if boneId ~= nil then
+            local physId = ownerRagdoll:TranslateBoneToPhysBone(boneId)
+            local phys = ownerRagdoll:GetPhysicsObjectNum(physId)
 
-            timer.Create(thrustTimerString, 0.3, 0, function()
-                phys:SetVelocity(Vector(0, 0, ThrustVelocity))
+            if IsValid(phys) then
+                phys:SetVelocity(Vector(0, 0, 100000))
 
-                if GetConVar("ttt2_snuggle_struggle_animation_sound"):GetBool() and IsValid(victimRagdoll) and math.random(5) == 3 then
-                    victimRagdoll:EmitSound(sounds3[math.random(#sounds3)])
-                end
-            end)
+                timer.Create(thrustTimerString, 0.3, 0, function()
+                    phys:SetVelocity(Vector(0, 0, ThrustVelocity))
+
+                    if GetConVar("ttt2_snuggle_struggle_animation_sound"):GetBool() and IsValid(victimRagdoll) and math.random(5) == 3 then
+                        victimRagdoll:EmitSound(sounds3[math.random(#sounds3)])
+                    end
+                end)
+            end
         end
 
         local soundTimerString = "EmitRapeSounds_" .. (owner:SteamID64() or "SINGLEPLAYER")
