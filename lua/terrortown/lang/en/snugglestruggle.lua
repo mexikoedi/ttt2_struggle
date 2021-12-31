@@ -1,4 +1,4 @@
-L = LANG.GetLanguageTableReference("en")
+local L = LANG.GetLanguageTableReference("en")
 L["ttt2_snugglestruggle_name"] = "Snuggle Struggle"
 L["ttt2_snugglestruggle_desc"] = "Have fun with your enemies! Cannot be used if the disguiser has been bought!"
 L["ttt2_sungglestruggle_help1"] = "{primaryfire} to have fun"
