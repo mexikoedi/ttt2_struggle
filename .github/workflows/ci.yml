@@ -23,7 +23,7 @@ jobs:
 
     - name: Download & extract glualint
       run: |
-        wget -c https://github.com/FPtje/GLuaFixer/releases/download/${GLUALINT_VERSION}/glualint-${GLUALINT_VERSION}-linux.zip -O glualint.zip
+        wget -c https://github.com/FPtje/GLuaFixer/releases/download/${GLUALINT_VERSION}/glualint-${GLUALINT_VERSION}-x86_64-linux.zip -O glualint.zip
         unzip -u glualint.zip
         rm glualint.zip
 
