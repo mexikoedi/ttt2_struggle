@@ -59,9 +59,7 @@ local sounds = {"player/crit_death1.wav", "player/crit_death2.wav", "player/crit
 local sounds2 = {"bot/where_are_you_hiding.wav", "vo/NovaProspekt/al_whereareyou03.wav", "vo/Citadel/al_wonderwhere.wav",}
 local sounds3 = {"physics/body/body_medium_break2.wav", "physics/body/body_medium_break3.wav", "physics/body/body_medium_break4.wav", "physics/body/body_medium_impact_hard1.wav", "physics/body/body_medium_impact_hard2.wav", "physics/body/body_medium_impact_hard3.wav", "physics/body/body_medium_impact_hard4.wav", "physics/body/body_medium_impact_hard5.wav", "physics/body/body_medium_impact_hard6.wav",}
 function SWEP:Initialize()
-    if CLIENT then
-        self:AddHUDHelp("ttt2_sungglestruggle_help1", "ttt2_sungglestruggle_help2", true)
-    end
+    if CLIENT then self:AddHUDHelp("ttt2_sungglestruggle_help1", "ttt2_sungglestruggle_help2", true) end
 end
 
 if SERVER then
@@ -73,10 +71,7 @@ if SERVER then
         dmg:SetDamageForce(ply:GetAimVector())
         dmg:SetDamagePosition(ply:GetPos())
         dmg:SetDamageType(DMG_GENERIC)
-        if inflictor then
-            dmg:SetInflictor(inflictor)
-        end
-
+        if inflictor then dmg:SetInflictor(inflictor) end
         ply:TakeDamageInfo(dmg)
     end
 
@@ -85,7 +80,6 @@ if SERVER then
         local owner = self:GetOwner()
         if GetRoundState() ~= ROUND_ACTIVE or GetRoundState() == ROUND_PREP or GetRoundState() == ROUND_WAIT or GetRoundState() == ROUND_POST then
             owner:ChatPrint("Round is not active, you can't use this weapon!")
-
             return
         end
 
@@ -94,7 +88,6 @@ if SERVER then
         if not IsValid(victim) or victim:IsNPC() or not victim:IsPlayer() or not victim:IsTerror() or not victim:IsActive() then return end
         if owner:HasEquipmentItem("item_ttt_disguiser") then
             owner:ChatPrint("You can't use this weapon with a disguiser!")
-
             return
         end
 
@@ -108,10 +101,7 @@ if SERVER then
         local trace = util.TraceLine(traceda)
         positionBase = trace.HitPos or positionBase
         if positionVictim:Distance(positionOwner) > self.Primary.Distance then return end
-        if GetConVar("ttt2_snuggle_struggle_primary_sound"):GetBool() then
-            owner:EmitSound(self.Primary.Sound)
-        end
-
+        if GetConVar("ttt2_snuggle_struggle_primary_sound"):GetBool() then owner:EmitSound(self.Primary.Sound) end
         -- set owner to godmode with no movement + hide his name/give item + position him and set victim to spectator camera 
         owner:GodEnable()
         owner:SetJumpPower(1)
@@ -162,9 +152,7 @@ if SERVER then
                 phys:SetAngles(attackerAng[i])
                 phys:EnableCollisions(false)
                 phys:EnableMotion(true)
-                if i == 2 or i == 5 or i == 7 or i == 10 or i == 13 or i == 14 then
-                    phys:EnableMotion(false)
-                end
+                if i == 2 or i == 5 or i == 7 or i == 10 or i == 13 or i == 14 then phys:EnableMotion(false) end
             end
         end
 
@@ -179,84 +167,58 @@ if SERVER then
             local phys = ownerRagdoll:GetPhysicsObjectNum(physId)
             if IsValid(phys) then
                 phys:SetVelocity(Vector(0, 0, 100000))
-                timer.Create(
-                    thrustTimerString,
-                    0.3,
-                    0,
-                    function()
-                        phys:SetVelocity(Vector(0, 0, ThrustVelocity))
-                        if GetConVar("ttt2_snuggle_struggle_animation_sound"):GetBool() and IsValid(victimRagdoll) and math.random(5) == 3 then
-                            victimRagdoll:EmitSound(sounds3[math.random(#sounds3)])
-                        end
-                    end
-                )
+                timer.Create(thrustTimerString, 0.3, 0, function()
+                    phys:SetVelocity(Vector(0, 0, ThrustVelocity))
+                    if GetConVar("ttt2_snuggle_struggle_animation_sound"):GetBool() and IsValid(victimRagdoll) and math.random(5) == 3 then victimRagdoll:EmitSound(sounds3[math.random(#sounds3)]) end
+                end)
             end
         end
 
         local soundTimerString = "EmitSnuggleSounds_" .. (owner:SteamID64() or "SINGLEPLAYER")
         if GetConVar("ttt2_snuggle_struggle_animation_sound"):GetBool() then
-            timer.Create(
-                soundTimerString,
-                self.SoundDelay,
-                0,
-                function()
-                    if not victimRagdoll:IsValid() then return end
-                    victimRagdoll:EmitSound(sounds[math.random(#sounds)])
-                end
-            )
+            timer.Create(soundTimerString, self.SoundDelay, 0, function()
+                if not victimRagdoll:IsValid() then return end
+                victimRagdoll:EmitSound(sounds[math.random(#sounds)])
+            end)
         end
 
-        timer.Create(
-            "itemremoval",
-            self.SnuggleLength - 0.5,
-            0,
-            function()
-                owner:ConCommand("ttt_toggle_disguise")
-            end
-        )
-
+        timer.Create("itemremoval", self.SnuggleLength - 0.5, 0, function() owner:ConCommand("ttt_toggle_disguise") end)
         -- check health/give health + positioning of owner/victim and letting the owner move again with no godmode + remove item
-        timer.Simple(
-            self.SnuggleLength,
-            function()
-                if IsValid(owner) then
-                    if owner:Health() < 100 then
-                        owner:SetHealth(100)
-                    end
-
-                    owner:SetPos(positionOwner)
-                    owner:RemoveItem("item_ttt_disguiser")
-                    owner:SetJumpPower(160)
-                    owner:SetCrouchedWalkSpeed(0.3)
-                    owner:SetRunSpeed(220)
-                    owner:SetWalkSpeed(220)
-                    owner:SetMaxSpeed(220)
-                    owner:GodDisable()
-                    -- give loadout of owner
-                    owner:RestoreCachedWeapons()
-                    -- remove weapon and select last weapon
-                    owner:StripWeapon("weapon_ttt2_snuggle_struggle")
-                    RunConsoleCommand("lastinv")
-                end
-
-                if IsValid(victim) then
-                    victim:UnSpectate()
-                    victim:Spawn()
-                    victim:SetPos(positionVictim)
-                    -- give loadout of victim
-                    victim:RestoreCachedWeapons()
-                    -- create damage
-                    InstantDamage(victim, 500, owner, ents.Create("weapon_ttt2_snuggle_struggle"))
-                end
-
-                -- removing ragdolls and timers
-                SafeRemoveEntity(victimRagdoll)
-                SafeRemoveEntity(ownerRagdoll)
-                timer.Remove(soundTimerString)
-                timer.Remove(thrustTimerString)
-                timer.Remove("itemremoval")
+        timer.Simple(self.SnuggleLength, function()
+            if IsValid(owner) then
+                if owner:Health() < 100 then owner:SetHealth(100) end
+                owner:SetPos(positionOwner)
+                owner:RemoveItem("item_ttt_disguiser")
+                owner:SetJumpPower(160)
+                owner:SetCrouchedWalkSpeed(0.3)
+                owner:SetRunSpeed(220)
+                owner:SetWalkSpeed(220)
+                owner:SetMaxSpeed(220)
+                owner:GodDisable()
+                -- give loadout of owner
+                owner:RestoreCachedWeapons()
+                -- remove weapon and select last weapon
+                owner:StripWeapon("weapon_ttt2_snuggle_struggle")
+                RunConsoleCommand("lastinv")
             end
-        )
+
+            if IsValid(victim) then
+                victim:UnSpectate()
+                victim:Spawn()
+                victim:SetPos(positionVictim)
+                -- give loadout of victim
+                victim:RestoreCachedWeapons()
+                -- create damage
+                InstantDamage(victim, 500, owner, ents.Create("weapon_ttt2_snuggle_struggle"))
+            end
+
+            -- removing ragdolls and timers
+            SafeRemoveEntity(victimRagdoll)
+            SafeRemoveEntity(ownerRagdoll)
+            timer.Remove(soundTimerString)
+            timer.Remove(thrustTimerString)
+            timer.Remove("itemremoval")
+        end)
     end
 
     SWEP.NextSecondaryAttack = 0
@@ -265,8 +227,6 @@ if SERVER then
         self.NextSecondaryAttack = CurTime() + self.Secondary.Delay
         local owner = self:GetOwner()
         -- set up random sounds
-        if GetConVar("ttt2_snuggle_struggle_secondary_sound"):GetBool() then
-            owner:EmitSound(sounds2[math.random(#sounds2)])
-        end
+        if GetConVar("ttt2_snuggle_struggle_secondary_sound"):GetBool() then owner:EmitSound(sounds2[math.random(#sounds2)]) end
     end
 end
