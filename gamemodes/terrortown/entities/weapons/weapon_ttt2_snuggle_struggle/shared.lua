@@ -78,14 +78,14 @@ if SERVER then
     function SWEP:PrimaryAttack()
         -- set up positioning stuff and owner/victim checks
         local owner = self:GetOwner()
-        if GetRoundState() ~= ROUND_ACTIVE or GetRoundState() == ROUND_PREP or GetRoundState() == ROUND_WAIT or GetRoundState() == ROUND_POST then
+        if GetRoundState() ~= ROUND_ACTIVE then
             owner:ChatPrint("Round is not active, you can't use this weapon!")
             return
         end
 
         -- disable usage if disguiser is already bought
         local victim = owner:GetEyeTrace().Entity
-        if not IsValid(victim) or victim:IsNPC() or not victim:IsPlayer() or not victim:IsTerror() or not victim:IsActive() then return end
+        if not IsValid(victim) or victim:IsNPC() or not victim:IsPlayer() or not victim:IsActive() then return end
         if owner:HasEquipmentItem("item_ttt_disguiser") then
             owner:ChatPrint("You can't use this weapon with a disguiser!")
             return
