@@ -59,7 +59,7 @@ local sounds = {"player/crit_death1.wav", "player/crit_death2.wav", "player/crit
 local sounds2 = {"bot/where_are_you_hiding.wav", "vo/NovaProspekt/al_whereareyou03.wav", "vo/Citadel/al_wonderwhere.wav",}
 local sounds3 = {"physics/body/body_medium_break2.wav", "physics/body/body_medium_break3.wav", "physics/body/body_medium_break4.wav", "physics/body/body_medium_impact_hard1.wav", "physics/body/body_medium_impact_hard2.wav", "physics/body/body_medium_impact_hard3.wav", "physics/body/body_medium_impact_hard4.wav", "physics/body/body_medium_impact_hard5.wav", "physics/body/body_medium_impact_hard6.wav",}
 function SWEP:Initialize()
-    if CLIENT then self:AddHUDHelp("ttt2_sungglestruggle_help1", "ttt2_sungglestruggle_help2", true) end
+    if CLIENT then self:AddTTT2HUDHelp("ttt2_sungglestruggle_help1", "ttt2_sungglestruggle_help2") end
 end
 
 if SERVER then
