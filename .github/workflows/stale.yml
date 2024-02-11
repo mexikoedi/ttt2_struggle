@@ -1,0 +1,24 @@
+# Stale action
+# Visit following website for more information: https://github.com/marketplace/actions/close-stale-issues
+name: 'Close stale issues and PRs'
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-stale: 60
+          days-before-close: 7
+          exempt-issue-labels: 'accepted'
+          stale-issue-label: 'stale'
+          stale-issue-message: 'This issue has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs.'
+          close-issue-message: 'Closing because no activity occured. Thank you for your contributions.'
+          exempt-pr-labels: 'accepted'
+          stale-pr-label: 'stale'
+          stale-pr-message: 'This pull request has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs.'
+          close-pr-message: 'Closing because no activity occured. Thank you for your contributions.'
+          remove-stale-when-updated: true
