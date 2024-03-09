@@ -1,11 +1,11 @@
 {
-    "title": "[TTT2] Snuggle Struggle [WEAPON]",
+    "title": "[TTT2] Struggle [WEAPON]",
     "type": "weapon",
     "tags": [
         "realism",
         "fun"
     ],
-    "description": "Have fun with your enemies! Cannot be used if the disguiser has been bought!",
+    "description": "Arrest and kill your enemies! Cannot be used if the disguiser has been bought!",
     "ignore": [
         "*.psd",
         "*.vcproj",

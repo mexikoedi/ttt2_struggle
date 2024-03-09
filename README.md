@@ -1,6 +1,6 @@
-# ttt2_snuggle_struggle
+# ttt2_struggle
 
-ttt2_snuggle_struggle addon for Garry's Mod.
+ttt2_struggle addon for Garry's Mod.
 
 More information are available here: 
 https://steamcommunity.com/sharedfiles/filedetails/?id=2055639910

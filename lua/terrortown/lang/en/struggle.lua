@@ -1,0 +1,9 @@
+local L = LANG.GetLanguageTableReference("en")
+L["ttt2_struggle_name"] = "Struggle"
+L["ttt2_struggle_desc"] = "Arrest and kill your enemies! Cannot be used if the disguiser has been bought!"
+L["ttt2_struggle_help1"] = "Arrest and kill"
+L["ttt2_struggle_help2"] = "To taunt"
+L["label_struggle_primary_sound"] = "Enable primary attack sound"
+L["label_struggle_secondary_sound"] = "Enable secondary attack sound"
+L["label_struggle_animation_sound"] = "Enable animation sound"
+L["label_struggle_length"] = "Length of the attack"
