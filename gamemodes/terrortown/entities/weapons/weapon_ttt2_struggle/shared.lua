@@ -118,7 +118,6 @@ if SERVER then
             owner:RestoreCachedWeapons()
             -- remove weapon and select last weapon
             owner:StripWeapon("weapon_ttt2_struggle")
-            RunConsoleCommand("lastinv")
         end
 
         if IsValid(victim) then
