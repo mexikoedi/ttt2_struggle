@@ -141,24 +141,36 @@ if SERVER then
     end
 
     function SWEP:PrimaryAttack()
-        -- set up positioning stuff and owner/victim checks
+        -- set up positioning stuff and owner/victim checks + activate lag compensation
         local owner = self:GetOwner()
+        if not IsValid(owner) then return end
+        owner:LagCompensation(true)
         if GetRoundState() ~= ROUND_ACTIVE then
             owner:ChatPrint("Round is not active, you can't use this weapon!")
+            owner:LagCompensation(false)
             return
         end
 
-        -- disable usage if disguiser is already bought
+        -- disable usage if disguiser is already bought and deactivate lag compensation
         local victim = owner:GetEyeTrace().Entity
-        if not IsValid(victim) or victim:IsNPC() or not victim:IsPlayer() or not victim:IsActive() then return end
+        if not IsValid(victim) or victim:IsNPC() or not victim:IsPlayer() or not victim:IsActive() then
+            owner:LagCompensation(false)
+            return
+        end
+
         if owner:HasEquipmentItem("item_ttt_disguiser") then
             owner:ChatPrint("You can't use this weapon with a disguiser!")
+            owner:LagCompensation(false)
             return
         end
 
         local positionOwner = owner:GetPos()
         local positionVictim = victim:GetPos()
-        if positionVictim:Distance(positionOwner) > self.Primary.Distance then return end
+        if positionVictim:Distance(positionOwner) > self.Primary.Distance then
+            owner:LagCompensation(false)
+            return
+        end
+
         if GetConVar("ttt2_struggle_primary_sound"):GetBool() then owner:EmitSound(self.Primary.Sound) end
         -- set owner to godmode with no movement + hide his name/give item
         owner:GodEnable()
@@ -177,7 +189,11 @@ if SERVER then
         -- animation, sound and multiple checks to ensure proper functionality
         local animationTimerString = "StruggleAnimation_" .. (owner:SteamID64() or "SINGLEPLAYER")
         timer.Create(animationTimerString, 0.1, 0, function()
-            if not victim:IsValid() then return end
+            if not victim:IsValid() then
+                owner:LagCompensation(false)
+                return
+            end
+
             if GetConVar("ttt2_struggle_animation_sound"):GetBool() and math.random(5) == 3 then victim:EmitSound(sounds3[math.random(#sounds3)]) end
             for bone, params in pairs(animation["struggle"]) do
                 local boneid = victim:LookupBone(bone)
@@ -191,15 +207,20 @@ if SERVER then
         local soundTimerString = "StruggleSound_" .. (owner:SteamID64() or "SINGLEPLAYER")
         if GetConVar("ttt2_struggle_animation_sound"):GetBool() then
             timer.Create(soundTimerString, self.SoundDelay, 0, function()
-                if not victim:IsValid() then return end
+                if not victim:IsValid() then
+                    owner:LagCompensation(false)
+                    return
+                end
+
                 victim:EmitSound(sounds[math.random(#sounds)])
             end)
         end
 
-        -- check health/give health + letting the owner move again with no godmode + give loadout to both players + deal damage + remove timers
+        -- check health/give health + letting the owner move again with no godmode + give loadout to both players + deal damage + remove timers + deactivate lag compensation
         timer.Simple(self.StruggleLength, function() success(victim, owner, animationTimerString, soundTimerString) end)
         -- deactivate disguiser
         timer.Create("itemremoval", self.StruggleLength - 0.5, 0, function() owner:ConCommand("ttt_toggle_disguise") end)
+        owner:LagCompensation(false)
     end
 
     SWEP.NextSecondaryAttack = 0
