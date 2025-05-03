@@ -188,7 +188,7 @@ if SERVER then
         victim:Freeze(true)
         -- animation, sound and multiple checks to ensure proper functionality
         local animationTimerString = "StruggleAnimation_" .. (owner:SteamID64() or "SINGLEPLAYER")
-        timer.Create(animationTimerString, 0.1, 0, function()
+        timer.Create(animationTimerString, 0.3, 0, function()
             if not victim:IsValid() then
                 owner:LagCompensation(false)
                 return
@@ -198,8 +198,12 @@ if SERVER then
             for bone, params in pairs(animation["struggle"]) do
                 local boneid = victim:LookupBone(bone)
                 if boneid then
-                    victim:ManipulateBonePosition(boneid, params.pos or Vector(0, 0, 0))
-                    victim:ManipulateBoneAngles(boneid, params.ang or Angle(0, 0, 0))
+                    local bonePos = params.pos or Vector(0, 0, 0)
+                    local boneAng = params.ang or Angle(0, 0, 0)
+                    local randPos = Vector(bonePos.x + math.Rand(-1.0, 1.0), bonePos.y + math.Rand(-1.0, 1.0), bonePos.z + math.Rand(-1.0, 1.0))
+                    local randAng = Angle(boneAng.p + math.Rand(-5, 5), boneAng.y + math.Rand(-5, 5), boneAng.r + math.Rand(-5, 5))
+                    victim:ManipulateBonePosition(boneid, randPos)
+                    victim:ManipulateBoneAngles(boneid, randAng)
                 end
             end
         end)
