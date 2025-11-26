@@ -14,6 +14,14 @@ jobs:
   Scan-Build:
     # Scan runs on ubuntu, mac and windows
     runs-on: ubuntu-latest
+
+    # GitHub token permissions
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+
     steps:
     - uses: actions/checkout@v6.0.0
     # Instructions

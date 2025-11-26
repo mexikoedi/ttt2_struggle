@@ -8,6 +8,11 @@ on:
 jobs:
   stale:
     runs-on: ubuntu-latest
+
+    # GitHub token permissions
+    permissions:
+      contents: read
+
     steps:
       - uses: actions/stale@v10
         with:
