@@ -2,7 +2,7 @@
 
 [TTT2] Struggle [WEAPON] addon for Garry's Mod.
 
-More information are available here: 
+More information is available here: 
 https://steamcommunity.com/sharedfiles/filedetails/?id=3216619132
 
 Feel free to contribute to this project. <br>
