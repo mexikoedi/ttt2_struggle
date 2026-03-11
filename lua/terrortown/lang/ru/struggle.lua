@@ -1,6 +1,6 @@
 local L = LANG.GetLanguageTableReference("ru")
 L["ttt2_snugglestruggle_name"] = "Борьба"
-L["ttt2_snugglestruggle_desc"] = "Арестуйте и убивайте своих врагов! Невозможно использовать, если Маскировка куплен!"
+L["ttt2_snugglestruggle_desc"] = "Дразните, арестовывайте и убивайте своих врагов!"
 L["ttt2_sungglestruggle_help1"] = "Арестовать и убить"
 L["ttt2_sungglestruggle_help2"] = "Для насмешки"
 L["label_snuggle_struggle_primary_sound"] = "Включить звук основной атаки"

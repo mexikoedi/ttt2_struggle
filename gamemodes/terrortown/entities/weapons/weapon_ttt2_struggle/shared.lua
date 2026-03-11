@@ -1,6 +1,7 @@
 if SERVER then
     AddCSLuaFile()
     resource.AddFile("materials/vgui/ttt/weapon_struggle.vmt")
+    util.AddNetworkString("TTT2StruggleSetVictimThirdperson")
 end
 
 SWEP.Base = "weapon_tttbase"
@@ -92,6 +93,13 @@ function SWEP:Initialize()
 end
 
 if SERVER then
+    local function SetVictimThirdperson(ply, enabled)
+        if not IsValid(ply) then return end
+        net.Start("TTT2StruggleSetVictimThirdperson")
+        net.WriteBool(enabled)
+        net.Send(ply)
+    end
+
     -- damage/inflictor code
     local function InstantDamage(ply, damage, attacker, inflictor)
         local dmg = DamageInfo()
@@ -107,7 +115,9 @@ if SERVER then
     local function success(victim, owner, animationTimerString, soundTimerString)
         if IsValid(owner) then
             if owner:Health() < 100 then owner:SetHealth(100) end
-            owner:RemoveItem("item_ttt_disguiser")
+            -- show name/remove item, enable movement and disable godmode for owner
+            if not struggleOwnerIsDisguised then owner:ConCommand("ttt_toggle_disguise") end
+            if not struggleOwnerHasDisguiser then timer.Simple(0.5, function() owner:RemoveItem("item_ttt_disguiser") end) end
             owner:SetJumpPower(160)
             owner:SetCrouchedWalkSpeed(0.3)
             owner:SetRunSpeed(220)
@@ -121,7 +131,14 @@ if SERVER then
         end
 
         if IsValid(victim) then
-            victim:Freeze(false)
+            -- disable thirdperson for victim
+            SetVictimThirdperson(victim, false)
+            -- enable victim movement
+            victim:SetJumpPower(160)
+            victim:SetCrouchedWalkSpeed(0.3)
+            victim:SetRunSpeed(220)
+            victim:SetWalkSpeed(220)
+            victim:SetMaxSpeed(220)
             local bonecount = victim:GetBoneCount()
             for i = 0, bonecount do
                 victim:ManipulateBonePosition(i, Vector(0, 0, 0))
@@ -137,7 +154,6 @@ if SERVER then
         -- removing timers
         timer.Remove(animationTimerString)
         timer.Remove(soundTimerString)
-        timer.Remove("itemremoval")
     end
 
     function SWEP:PrimaryAttack()
@@ -151,15 +167,8 @@ if SERVER then
             return
         end
 
-        -- disable usage if disguiser is already bought and deactivate lag compensation
         local victim = owner:GetEyeTrace().Entity
         if not IsValid(victim) or victim:IsNPC() or not victim:IsPlayer() or not victim:IsActive() then
-            owner:LagCompensation(false)
-            return
-        end
-
-        if owner:HasEquipmentItem("item_ttt_disguiser") then
-            owner:ChatPrint("You can't use this weapon with a disguiser!")
             owner:LagCompensation(false)
             return
         end
@@ -179,13 +188,29 @@ if SERVER then
         owner:SetRunSpeed(1)
         owner:SetWalkSpeed(1)
         owner:SetMaxSpeed(1)
-        owner:GiveEquipmentItem("item_ttt_disguiser")
-        owner:ConCommand("ttt_toggle_disguise")
+        struggleOwnerHasDisguiser = true
+        if not owner:HasEquipmentItem("item_ttt_disguiser") then
+            struggleOwnerHasDisguiser = false
+            owner:GiveEquipmentItem("item_ttt_disguiser")
+        end
+
+        struggleOwnerIsDisguised = true
+        if not owner:GetNWBool("disguised", false) then
+            struggleOwnerIsDisguised = false
+            owner:ConCommand("ttt_toggle_disguise")
+        end
+
         -- remove loadout from both players
         owner:CacheAndStripWeapons()
         victim:CacheAndStripWeapons()
         -- disable victim movement
-        victim:Freeze(true)
+        victim:SetJumpPower(1)
+        victim:SetCrouchedWalkSpeed(0.1)
+        victim:SetRunSpeed(1)
+        victim:SetWalkSpeed(1)
+        victim:SetMaxSpeed(1)
+        -- enable thirdperson for victim
+        SetVictimThirdperson(victim, true)
         -- animation, sound and multiple checks to ensure proper functionality
         local animationTimerString = "StruggleAnimation_" .. (owner:SteamID64() or "SINGLEPLAYER")
         timer.Create(animationTimerString, 0.3, 0, function()
@@ -222,8 +247,6 @@ if SERVER then
 
         -- check health/give health + letting the owner move again with no godmode + give loadout to both players + deal damage + remove timers + deactivate lag compensation
         timer.Simple(self.StruggleLength, function() success(victim, owner, animationTimerString, soundTimerString) end)
-        -- deactivate disguiser
-        timer.Create("itemremoval", self.StruggleLength - 0.5, 0, function() owner:ConCommand("ttt_toggle_disguise") end)
         owner:LagCompensation(false)
     end
 
@@ -263,4 +286,34 @@ if CLIENT then
             decimal = 0
         })
     end
+
+    net.Receive("TTT2StruggleSetVictimThirdperson", function()
+        local struggleThirdpersonEnabled = false
+        struggleThirdpersonEnabled = net.ReadBool()
+        if not struggleThirdpersonEnabled then
+            hook.Remove("CalcView", "TTT2StruggleVictimThirdperson")
+            return
+        end
+
+        hook.Add("CalcView", "TTT2StruggleVictimThirdperson", function(ply, origin, angles, fov)
+            if not IsValid(ply) then return end
+            if ply ~= LocalPlayer() then return end
+            if not struggleThirdpersonEnabled then return end
+            local view = {}
+            view.angles = angles
+            view.fov = fov
+            view.drawviewer = true
+            local desiredOrigin = origin - angles:Forward() * 90 + Vector(0, 0, 20)
+            local tr = util.TraceHull({
+                start = origin,
+                endpos = desiredOrigin,
+                mins = Vector(-4, -4, -4),
+                maxs = Vector(4, 4, 4),
+                filter = ply
+            })
+
+            view.origin = tr.Hit and tr.HitPos + tr.HitNormal * 5 or desiredOrigin
+            return view
+        end)
+    end)
 end
